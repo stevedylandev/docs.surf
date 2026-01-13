@@ -1,0 +1,19 @@
+{
+	"name": "atfeeds",
+	"version": "1.0.0",
+	"private": true,
+	"workspaces": [
+		"packages/*"
+	],
+	"scripts": {
+		"dev": "bun run --filter '*' dev",
+		"dev:server": "cd packages/server && npm run dev",
+		"dev:client": "cd packages/client && npm run dev",
+		"deploy": "cd packages/server && npm run deploy",
+		"deploy:client": "cd packages/client && npm run pages:deploy",
+		"db:create": "cd packages/server && npm run db:create",
+		"db:migrate": "cd packages/server && npm run db:migrate",
+		"db:migrate:prod": "cd packages/server && npm run db:migrate:prod",
+		"secret:set": "cd packages/server && npm run secret:set"
+	}
+}

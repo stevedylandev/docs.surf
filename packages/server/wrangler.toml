@@ -1,0 +1,31 @@
+name = "atfeeds-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "atfeeds-db"
+database_id = "bfbb9955-1496-47e9-9602-e32c9b1fa7b2"
+
+# Queue for processing document resolution
+# [[queues.producers]]
+# queue = "document-resolution"
+# binding = "RESOLUTION_QUEUE"
+
+# [[queues.consumers]]
+# queue = "document-resolution"
+# max_batch_size = 10
+# max_batch_timeout = 30
+
+# Cron trigger to refresh stale documents
+[triggers]
+crons = ["*/15 * * * *"]  # Every 15 minutes
+
+# Environment variables (secrets should be set via wrangler secret)
+# TAP_WEBHOOK_SECRET - Optional secret for webhook authentication
+# Set via: wrangler secret put TAP_WEBHOOK_SECRET
+
+# Development settings
+[dev]
+port = 8787
