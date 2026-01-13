@@ -1,5 +1,5 @@
 {
-	"name": "atfeeds",
+	"name": "document-feeds",
 	"version": "1.0.0",
 	"private": true,
 	"workspaces": [

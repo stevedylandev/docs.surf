@@ -1,20 +1,16 @@
 {
-  "name": "@atfeeds/server",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
-    "db:create": "wrangler d1 create atfeeds-db",
-    "db:migrate": "wrangler d1 execute atfeeds-db --local --file=./schema.sql",
-    "db:migrate:prod": "wrangler d1 execute atfeeds-db --remote --file=./schema.sql",
-    "secret:set": "wrangler secret put TAP_WEBHOOK_SECRET"
-  },
-  "dependencies": {
-    "hono": "^4.0.0"
-  },
-  "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240117.0",
-    "wrangler": "^3.0.0"
-  }
+	"name": "@document-feeds/server",
+	"version": "1.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "wrangler dev",
+		"deploy": "wrangler deploy"
+	},
+	"dependencies": {
+		"hono": "^4.0.0"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20240117.0",
+		"wrangler": "^3.0.0"
+	}
 }
