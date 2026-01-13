@@ -6,7 +6,7 @@
 		"dev": "vite",
 		"build": "tsc && vite build",
 		"preview": "vite preview",
-		"pages:deploy": "vite build && wrangler pages deploy dist --project-name=atfeeds"
+		"deploy": "vite build && wrangler pages deploy dist"
 	},
 	"dependencies": {
 		"react": "^18.2.0",

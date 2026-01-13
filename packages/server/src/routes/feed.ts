@@ -1,7 +1,75 @@
 import { Hono } from "hono";
-import type { Bindings } from "../types";
+import type { Bindings, ResolvedDocumentRow, Document, Publication, BskyPostRef } from "../types";
 
 const feed = new Hono<{ Bindings: Bindings }>();
+
+/**
+ * Transforms a database row into a Document object for the API response.
+ */
+function rowToDocument(row: ResolvedDocumentRow): Document {
+  // Build publication object if we have publication data
+  let publication: Publication | undefined;
+  if (row.pub_url && row.pub_name) {
+    publication = {
+      url: row.pub_url,
+      name: row.pub_name,
+      description: row.pub_description || undefined,
+      iconCid: row.pub_icon_cid || undefined,
+      iconUrl: row.pub_icon_url || undefined,
+    };
+  }
+
+  // Parse bskyPostRef if present
+  let bskyPostRef: BskyPostRef | undefined;
+  if (row.bsky_post_ref) {
+    try {
+      bskyPostRef = JSON.parse(row.bsky_post_ref);
+    } catch {
+      // Ignore parse errors
+    }
+  }
+
+  // Parse tags if present
+  let tags: string[] | undefined;
+  if (row.tags) {
+    try {
+      tags = JSON.parse(row.tags);
+    } catch {
+      // Ignore parse errors
+    }
+  }
+
+  // Parse content if present
+  let content: unknown | undefined;
+  if (row.content) {
+    try {
+      content = JSON.parse(row.content);
+    } catch {
+      // Ignore parse errors
+    }
+  }
+
+  return {
+    uri: row.uri,
+    did: row.did,
+    rkey: row.rkey,
+    title: row.title || "Untitled",
+    description: row.description || undefined,
+    path: row.path || undefined,
+    site: row.site || undefined,
+    content,
+    textContent: row.text_content || undefined,
+    coverImageCid: row.cover_image_cid || undefined,
+    coverImageUrl: row.cover_image_url || undefined,
+    bskyPostRef,
+    tags,
+    publishedAt: row.published_at || undefined,
+    updatedAt: row.updated_at || undefined,
+    publication,
+    viewUrl: row.view_url || undefined,
+    pdsEndpoint: row.pds_endpoint || undefined,
+  };
+}
 
 // Get raw feed data (for client-side fetching)
 // Accessible at both /feed/raw and /feed-raw (via alias in index.ts)
@@ -44,37 +112,19 @@ feed.get("/", async (c) => {
 
     const { results } = await db
       .prepare(
-        `SELECT uri, did, rkey, title, path, site, content, text_content, published_at, view_url
+        `SELECT uri, did, rkey, title, description, path, site, content, text_content,
+                cover_image_cid, cover_image_url, bsky_post_ref, tags,
+                published_at, updated_at, pub_url, pub_name, pub_description,
+                pub_icon_cid, pub_icon_url, view_url, pds_endpoint,
+                resolved_at, stale_at
          FROM resolved_documents
          ORDER BY rkey DESC
          LIMIT ? OFFSET ?`
       )
       .bind(limit, offset)
-      .all<{
-        uri: string;
-        did: string;
-        rkey: string;
-        title: string | null;
-        path: string | null;
-        site: string | null;
-        content: string | null;
-        text_content: string | null;
-        published_at: string | null;
-        view_url: string | null;
-      }>();
+      .all<ResolvedDocumentRow>();
 
-    const documents = (results || []).map((doc) => ({
-      uri: doc.uri,
-      did: doc.did,
-      rkey: doc.rkey,
-      title: doc.title || "Untitled",
-      path: doc.path,
-      site: doc.site,
-      content: doc.content ? JSON.parse(doc.content) : null,
-      textContent: doc.text_content,
-      publishedAt: doc.published_at,
-      viewUrl: doc.view_url,
-    }));
+    const documents = (results || []).map(rowToDocument);
 
     return c.json({
       count: documents.length,

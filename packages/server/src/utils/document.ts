@@ -1,11 +1,46 @@
 import { resolvePds } from "./resolver";
 import { parseAtUri } from "./at-uri";
+import { buildBlobUrl, extractBlobCid } from "./blob";
 
-export async function resolveViewUrl(
+// Raw document record from PDS
+interface DocumentRecord {
+  site?: string;
+  path?: string;
+  title?: string;
+  description?: string;
+  coverImage?: unknown;
+  content?: unknown;
+  textContent?: string;
+  bskyPostRef?: { uri: string; cid: string };
+  tags?: string[];
+  publishedAt?: string;
+  updatedAt?: string;
+}
+
+// Raw publication record from PDS
+interface PublicationRecord {
+  url?: string;
+  name?: string;
+  description?: string;
+  icon?: unknown;
+}
+
+// Resolved publication data
+interface ResolvedPublication {
+  url: string;
+  name: string;
+  description: string | null;
+  iconCid: string | null;
+  iconUrl: string | null;
+}
+
+/**
+ * Fetches a publication record from an at:// URI
+ */
+async function fetchPublication(
   db: D1Database,
-  siteUri: string,
-  path: string
-): Promise<string | null> {
+  siteUri: string
+): Promise<ResolvedPublication | null> {
   const parsed = parseAtUri(siteUri);
   if (!parsed) return null;
 
@@ -18,22 +53,56 @@ export async function resolveViewUrl(
     )}&collection=${encodeURIComponent(parsed.collection)}&rkey=${encodeURIComponent(
       parsed.rkey
     )}`;
+
     const response = await fetch(url);
     if (!response.ok) return null;
 
-    const data = (await response.json()) as {
-      value?: { url?: string; domain?: string };
-    };
-    const siteUrl = data.value?.url || data.value?.domain;
-    if (!siteUrl) return null;
+    const data = (await response.json()) as { value?: PublicationRecord };
+    const pub = data.value;
+    if (!pub?.url || !pub?.name) return null;
 
-    const baseUrl = siteUrl.startsWith("http") ? siteUrl : `https://${siteUrl}`;
-    return `${baseUrl}${path}`;
+    const iconCid = extractBlobCid(pub.icon);
+    const iconUrl = iconCid ? buildBlobUrl(pds, parsed.did, iconCid) : null;
+
+    return {
+      url: pub.url,
+      name: pub.name,
+      description: pub.description || null,
+      iconCid,
+      iconUrl,
+    };
   } catch {
     return null;
   }
 }
 
+/**
+ * Resolves the view URL for a document.
+ * If site is an at:// URI, fetches the publication to get the base URL.
+ * If site is an https:// URL, uses it directly.
+ */
+export async function resolveViewUrl(
+  db: D1Database,
+  siteUri: string,
+  path: string
+): Promise<string | null> {
+  // Check if site is an at:// URI or direct URL
+  if (siteUri.startsWith("at://")) {
+    const pub = await fetchPublication(db, siteUri);
+    if (!pub?.url) return null;
+    const baseUrl = pub.url.startsWith("http") ? pub.url : `https://${pub.url}`;
+    return `${baseUrl.replace(/\/$/, "")}${path}`;
+  }
+
+  // Direct URL
+  const baseUrl = siteUri.startsWith("http") ? siteUri : `https://${siteUri}`;
+  return `${baseUrl.replace(/\/$/, "")}${path}`;
+}
+
+/**
+ * Processes a document record: fetches from PDS, resolves publication,
+ * and stores all fields in resolved_documents table.
+ */
 export async function processDocument(
   db: D1Database,
   did: string,
@@ -48,16 +117,15 @@ export async function processDocument(
       return;
     }
 
-    // 2. Fetch Record
+    // 2. Fetch Document Record
     const url = `${pds}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(
       did
     )}&collection=${encodeURIComponent(collection)}&rkey=${encodeURIComponent(rkey)}`;
-    
+
     const response = await fetch(url);
     if (!response.ok) {
       if (response.status === 404) {
-         // Record deleted?
-         console.warn(`Record not found: ${did}/${collection}/${rkey}`);
+        console.warn(`Record not found: ${did}/${collection}/${rkey}`);
       }
       return;
     }
@@ -65,15 +133,7 @@ export async function processDocument(
     const data = (await response.json()) as {
       uri: string;
       cid?: string;
-      value: {
-        title?: string;
-        path?: string;
-        site?: string;
-        content?: unknown;
-        textContent?: string;
-        publishedAt?: string;
-        [key: string]: unknown;
-      };
+      value: DocumentRecord;
     };
 
     const { value, cid } = data;
@@ -90,52 +150,89 @@ export async function processDocument(
       .bind(did, rkey, collection, cid || null, cid || null)
       .run();
 
-    // 4. Resolve View URL and Update resolved_documents
-    const uri = `at://${did}/${collection}/${rkey}`;
+    // 4. Extract document fields
+    const title = value.title || null;
+    const description = value.description || null;
+    const path = value.path || null;
+    const site = value.site || null;
+    const content = value.content ? JSON.stringify(value.content) : null;
+    const textContent = value.textContent || null;
+    const coverImageCid = extractBlobCid(value.coverImage);
+    const coverImageUrl = coverImageCid ? buildBlobUrl(pds, did, coverImageCid) : null;
+    const bskyPostRef = value.bskyPostRef ? JSON.stringify(value.bskyPostRef) : null;
+    const tags = value.tags ? JSON.stringify(value.tags) : null;
+    const publishedAt = value.publishedAt || null;
+    const updatedAt = value.updatedAt || null;
+
+    // 5. Resolve publication if site is at:// URI
+    let pubUrl: string | null = null;
+    let pubName: string | null = null;
+    let pubDescription: string | null = null;
+    let pubIconCid: string | null = null;
+    let pubIconUrl: string | null = null;
     let viewUrl: string | null = null;
-    if (value.site && value.path) {
-      viewUrl = await resolveViewUrl(db, value.site, value.path);
+
+    if (site) {
+      if (site.startsWith("at://")) {
+        // Fetch publication record
+        const pub = await fetchPublication(db, site);
+        if (pub) {
+          pubUrl = pub.url;
+          pubName = pub.name;
+          pubDescription = pub.description;
+          pubIconCid = pub.iconCid;
+          pubIconUrl = pub.iconUrl;
+          // Construct view URL
+          if (pubUrl && path) {
+            const baseUrl = pubUrl.startsWith("http") ? pubUrl : `https://${pubUrl}`;
+            viewUrl = `${baseUrl.replace(/\/$/, "")}${path}`;
+          }
+        }
+      } else {
+        // Site is a direct URL (loose document)
+        pubUrl = site;
+        if (path) {
+          const baseUrl = site.startsWith("http") ? site : `https://${site}`;
+          viewUrl = `${baseUrl.replace(/\/$/, "")}${path}`;
+        }
+      }
     }
 
-    // Set stale_at to 12 hours from now
+    // 6. Insert/update resolved_documents
+    const uri = `at://${did}/${collection}/${rkey}`;
     const STALE_OFFSET_HOURS = 12;
 
     await db
       .prepare(
-        `INSERT INTO resolved_documents (uri, did, rkey, title, path, site, content, text_content, published_at, view_url, resolved_at, stale_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now', '+${STALE_OFFSET_HOURS} hours'))
-         ON CONFLICT(uri) DO UPDATE SET
-           title = ?,
-           path = ?,
-           site = ?,
-           content = ?,
-           text_content = ?,
-           published_at = ?,
-           view_url = ?,
-           resolved_at = datetime('now'),
-           stale_at = datetime('now', '+${STALE_OFFSET_HOURS} hours')`
+        `INSERT INTO resolved_documents (
+          uri, did, rkey, title, description, path, site, content, text_content,
+          cover_image_cid, cover_image_url, bsky_post_ref, tags,
+          published_at, updated_at, pub_url, pub_name, pub_description,
+          pub_icon_cid, pub_icon_url, view_url, pds_endpoint,
+          resolved_at, stale_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now', '+${STALE_OFFSET_HOURS} hours'))
+        ON CONFLICT(uri) DO UPDATE SET
+          title = ?, description = ?, path = ?, site = ?, content = ?, text_content = ?,
+          cover_image_cid = ?, cover_image_url = ?, bsky_post_ref = ?, tags = ?,
+          published_at = ?, updated_at = ?, pub_url = ?, pub_name = ?, pub_description = ?,
+          pub_icon_cid = ?, pub_icon_url = ?, view_url = ?, pds_endpoint = ?,
+          resolved_at = datetime('now'), stale_at = datetime('now', '+${STALE_OFFSET_HOURS} hours')`
       )
       .bind(
-        uri,
-        did,
-        rkey,
-        value.title || null,
-        value.path || null,
-        value.site || null,
-        value.content ? JSON.stringify(value.content) : null,
-        value.textContent || null,
-        value.publishedAt || null,
-        viewUrl,
-        // Update bindings
-        value.title || null,
-        value.path || null,
-        value.site || null,
-        value.content ? JSON.stringify(value.content) : null,
-        value.textContent || null,
-        value.publishedAt || null,
-        viewUrl
+        // INSERT values
+        uri, did, rkey, title, description, path, site, content, textContent,
+        coverImageCid, coverImageUrl, bskyPostRef, tags,
+        publishedAt, updatedAt, pubUrl, pubName, pubDescription,
+        pubIconCid, pubIconUrl, viewUrl, pds,
+        // UPDATE values
+        title, description, path, site, content, textContent,
+        coverImageCid, coverImageUrl, bskyPostRef, tags,
+        publishedAt, updatedAt, pubUrl, pubName, pubDescription,
+        pubIconCid, pubIconUrl, viewUrl, pds
       )
       .run();
+
+    console.log(`Processed document: ${uri}`);
   } catch (error) {
     console.error(`Error processing document ${did}/${collection}/${rkey}:`, error);
   }

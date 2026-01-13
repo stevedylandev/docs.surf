@@ -11,7 +11,8 @@
 		"dev:client": "cd packages/client && npm run dev",
 		"deploy": "cd packages/server && npm run deploy",
 		"deploy:client": "cd packages/client && npm run pages:deploy",
-		"db:create": "cd packages/server && npm run db:create",
+		"db:init": "cd packages/server && npm run db:init",
+		"db:init:prod": "cd packages/server && npm run db:init:prod",
 		"db:migrate": "cd packages/server && npm run db:migrate",
 		"db:migrate:prod": "cd packages/server && npm run db:migrate:prod",
 		"secret:set": "cd packages/server && npm run secret:set"
