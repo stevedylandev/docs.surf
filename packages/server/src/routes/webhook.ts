@@ -1,37 +1,8 @@
 import { Hono } from "hono";
 import type { Bindings, TapEvent } from "../types";
-import { resolvePds, parseAtUri } from "../utils";
+import { resolvePds, parseAtUri, resolveViewUrl } from "../utils";
 
 const webhook = new Hono<{ Bindings: Bindings }>();
-
-async function resolveViewUrl(
-  db: D1Database,
-  siteUri: string,
-  path: string
-): Promise<string | null> {
-  const parsed = parseAtUri(siteUri);
-  if (!parsed) return null;
-
-  try {
-    const pds = await resolvePds(db, parsed.did);
-    if (!pds) return null;
-
-    const url = `${pds}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(parsed.did)}&collection=${encodeURIComponent(parsed.collection)}&rkey=${encodeURIComponent(parsed.rkey)}`;
-    const response = await fetch(url);
-    if (!response.ok) return null;
-
-    const data = (await response.json()) as {
-      value?: { url?: string; domain?: string };
-    };
-    const siteUrl = data.value?.url || data.value?.domain;
-    if (!siteUrl) return null;
-
-    const baseUrl = siteUrl.startsWith("http") ? siteUrl : `https://${siteUrl}`;
-    return `${baseUrl}${path}`;
-  } catch {
-    return null;
-  }
-}
 
 webhook.post("/tap", async (c) => {
   try {
@@ -40,7 +11,12 @@ webhook.post("/tap", async (c) => {
     const secret = c.env.TAP_WEBHOOK_SECRET;
     if (secret) {
       const auth = c.req.header("Authorization");
-      if (auth !== `Bearer ${secret}`) {
+      // Support both Bearer token (legacy) and Basic Auth (Tap default)
+      // Tap sends Basic Auth as base64("admin:password")
+      const expectedBasic = `Basic ${btoa(`admin:${secret}`)}`;
+      const expectedBearer = `Bearer ${secret}`;
+
+      if (auth !== expectedBasic && auth !== expectedBearer) {
         return c.json({ error: "Unauthorized" }, 401);
       }
     }
@@ -87,10 +63,10 @@ webhook.post("/tap", async (c) => {
 
             await db
               .prepare(
-                `INSERT INTO resolved_documents (uri, did, rkey, title, path, site, content, text_content, published_at, view_url, resolved_at)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+                `INSERT INTO resolved_documents (uri, did, rkey, title, path, site, content, text_content, published_at, view_url, resolved_at, stale_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now', '+12 hours'))
                  ON CONFLICT(uri) DO UPDATE SET
-                   title = ?, path = ?, site = ?, content = ?, text_content = ?, published_at = ?, view_url = ?, resolved_at = datetime('now')`
+                   title = ?, path = ?, site = ?, content = ?, text_content = ?, published_at = ?, view_url = ?, resolved_at = datetime('now'), stale_at = datetime('now', '+12 hours')`
               )
               .bind(
                 uri,
@@ -147,7 +123,12 @@ webhook.post("/tap/batch", async (c) => {
     const secret = c.env.TAP_WEBHOOK_SECRET;
     if (secret) {
       const auth = c.req.header("Authorization");
-      if (auth !== `Bearer ${secret}`) {
+      // Support both Bearer token (legacy) and Basic Auth (Tap default)
+      // Tap sends Basic Auth as base64("admin:password")
+      const expectedBasic = `Basic ${btoa(`admin:${secret}`)}`;
+      const expectedBearer = `Bearer ${secret}`;
+
+      if (auth !== expectedBasic && auth !== expectedBearer) {
         return c.json({ error: "Unauthorized" }, 401);
       }
     }
@@ -207,10 +188,10 @@ webhook.post("/tap/batch", async (c) => {
 
             await db
               .prepare(
-                `INSERT INTO resolved_documents (uri, did, rkey, title, path, site, content, text_content, published_at, view_url, resolved_at)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+                `INSERT INTO resolved_documents (uri, did, rkey, title, path, site, content, text_content, published_at, view_url, resolved_at, stale_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now', '+12 hours'))
                  ON CONFLICT(uri) DO UPDATE SET
-                   title = ?, path = ?, site = ?, content = ?, text_content = ?, published_at = ?, view_url = ?, resolved_at = datetime('now')`
+                   title = ?, path = ?, site = ?, content = ?, text_content = ?, published_at = ?, view_url = ?, resolved_at = datetime('now'), stale_at = datetime('now', '+12 hours')`
               )
               .bind(
                 uri,

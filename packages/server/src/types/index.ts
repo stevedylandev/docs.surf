@@ -1,5 +1,6 @@
 export type Bindings = {
   DB: D1Database;
+  RESOLUTION_QUEUE: Queue;
   TAP_WEBHOOK_SECRET?: string;
 };
 

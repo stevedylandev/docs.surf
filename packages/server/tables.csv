@@ -1,0 +1,51 @@
+name,sql
+_cf_KV,"CREATE TABLE _cf_KV (
+        key TEXT PRIMARY KEY,
+        value BLOB
+      ) WITHOUT ROWID"
+repo_records,"CREATE TABLE repo_records (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  did TEXT NOT NULL,
+  rkey TEXT NOT NULL,
+  collection TEXT NOT NULL,
+  cid TEXT,
+  synced_at TEXT DEFAULT (datetime('now')),
+  UNIQUE(did, collection, rkey)
+)"
+pds_cache,"CREATE TABLE pds_cache (
+  did TEXT PRIMARY KEY,
+  pds_endpoint TEXT NOT NULL,
+  cached_at TEXT DEFAULT (datetime('now'))
+)"
+record_cache,"CREATE TABLE record_cache (
+  uri TEXT PRIMARY KEY,
+  did TEXT NOT NULL,
+  collection TEXT NOT NULL,
+  rkey TEXT NOT NULL,
+  record_data TEXT NOT NULL,  -- JSON blob
+  cached_at TEXT DEFAULT (datetime('now'))
+)"
+publication_cache,"CREATE TABLE publication_cache (
+  at_uri TEXT PRIMARY KEY,
+  base_url TEXT NOT NULL,
+  cached_at TEXT DEFAULT (datetime('now'))
+)"
+sync_metadata,"CREATE TABLE sync_metadata (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_at TEXT DEFAULT (datetime('now'))
+)"
+resolved_documents,"CREATE TABLE resolved_documents (
+  uri TEXT PRIMARY KEY,
+  did TEXT NOT NULL,
+  rkey TEXT NOT NULL,
+  title TEXT,
+  path TEXT,
+  site TEXT,
+  content TEXT,  -- JSON blob
+  text_content TEXT,
+  published_at TEXT,
+  view_url TEXT,
+  resolved_at TEXT DEFAULT (datetime('now')),
+  stale_at TEXT  -- When this record should be re-resolved
+)"
