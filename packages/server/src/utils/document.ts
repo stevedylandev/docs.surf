@@ -1,6 +1,7 @@
 import { resolvePds } from "./resolver";
 import { parseAtUri } from "./at-uri";
 import { buildBlobUrl, extractBlobCid } from "./blob";
+import { verifyDocumentRecord } from "./verification";
 
 // Raw document record from PDS
 interface DocumentRecord {
@@ -198,8 +199,11 @@ export async function processDocument(
       }
     }
 
-    // 6. Insert/update resolved_documents
+    // 6. Verify the document
     const uri = `at://${did}/${collection}/${rkey}`;
+    const verified = await verifyDocumentRecord(pubUrl, site, viewUrl, uri);
+
+    // 7. Insert/update resolved_documents
     const STALE_OFFSET_HOURS = 12;
 
     await db
@@ -209,26 +213,26 @@ export async function processDocument(
           cover_image_cid, cover_image_url, bsky_post_ref, tags,
           published_at, updated_at, pub_url, pub_name, pub_description,
           pub_icon_cid, pub_icon_url, view_url, pds_endpoint,
-          resolved_at, stale_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now', '+${STALE_OFFSET_HOURS} hours'))
+          resolved_at, stale_at, verified
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now', '+${STALE_OFFSET_HOURS} hours'), ?)
         ON CONFLICT(uri) DO UPDATE SET
           title = ?, description = ?, path = ?, site = ?, content = ?, text_content = ?,
           cover_image_cid = ?, cover_image_url = ?, bsky_post_ref = ?, tags = ?,
           published_at = ?, updated_at = ?, pub_url = ?, pub_name = ?, pub_description = ?,
           pub_icon_cid = ?, pub_icon_url = ?, view_url = ?, pds_endpoint = ?,
-          resolved_at = datetime('now'), stale_at = datetime('now', '+${STALE_OFFSET_HOURS} hours')`
+          resolved_at = datetime('now'), stale_at = datetime('now', '+${STALE_OFFSET_HOURS} hours'), verified = ?`
       )
       .bind(
         // INSERT values
         uri, did, rkey, title, description, path, site, content, textContent,
         coverImageCid, coverImageUrl, bskyPostRef, tags,
         publishedAt, updatedAt, pubUrl, pubName, pubDescription,
-        pubIconCid, pubIconUrl, viewUrl, pds,
+        pubIconCid, pubIconUrl, viewUrl, pds, verified ? 1 : 0,
         // UPDATE values
         title, description, path, site, content, textContent,
         coverImageCid, coverImageUrl, bskyPostRef, tags,
         publishedAt, updatedAt, pubUrl, pubName, pubDescription,
-        pubIconCid, pubIconUrl, viewUrl, pds
+        pubIconCid, pubIconUrl, viewUrl, pds, verified ? 1 : 0
       )
       .run();
 

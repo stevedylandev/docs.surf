@@ -98,4 +98,5 @@ export interface ResolvedDocumentRow {
   pds_endpoint: string | null;
   resolved_at: string | null;
   stale_at: string | null;
+  verified: number | null;
 }

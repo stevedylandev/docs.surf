@@ -83,7 +83,7 @@ feed.get("/raw", async (c) => {
       .prepare(
         `SELECT did, rkey FROM repo_records
          WHERE collection = 'site.standard.document'
-         ORDER BY rkey DESC
+         ORDER BY published_at DESC
          LIMIT ? OFFSET ?`
       )
       .bind(limit, offset)
@@ -116,9 +116,10 @@ feed.get("/", async (c) => {
                 cover_image_cid, cover_image_url, bsky_post_ref, tags,
                 published_at, updated_at, pub_url, pub_name, pub_description,
                 pub_icon_cid, pub_icon_url, view_url, pds_endpoint,
-                resolved_at, stale_at
+                resolved_at, stale_at, verified
          FROM resolved_documents
-         ORDER BY rkey DESC
+         WHERE verified = 1
+         ORDER BY published_at DESC
          LIMIT ? OFFSET ?`
       )
       .bind(limit, offset)

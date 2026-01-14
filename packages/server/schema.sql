@@ -55,9 +55,11 @@ CREATE TABLE IF NOT EXISTS resolved_documents (
   view_url TEXT,  -- Constructed canonical URL (pub_url + path)
   pds_endpoint TEXT,  -- Cached PDS endpoint for this DID
   resolved_at TEXT DEFAULT (datetime('now')),
-  stale_at TEXT  -- When this record should be re-resolved
+  stale_at TEXT,  -- When this record should be re-resolved
+  verified INTEGER DEFAULT 0  -- Whether the record has been verified via .well-known or link tag
 );
 
 CREATE INDEX IF NOT EXISTS idx_resolved_documents_rkey ON resolved_documents(rkey DESC);
 CREATE INDEX IF NOT EXISTS idx_resolved_documents_stale ON resolved_documents(stale_at);
 CREATE INDEX IF NOT EXISTS idx_resolved_documents_pub_url ON resolved_documents(pub_url);
+CREATE INDEX IF NOT EXISTS idx_resolved_documents_verified ON resolved_documents(verified);
