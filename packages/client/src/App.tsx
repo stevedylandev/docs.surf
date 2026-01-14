@@ -494,21 +494,16 @@ function App() {
 											}}
 										/>
 									) : (
-										<div
+										<img
+											src="/clouds.png"
+											alt="Default"
 											style={{
 												width: "88px",
 												height: "88px",
-												backgroundColor: "#f0f0f0",
+												objectFit: "cover",
 												border: "1px solid #d0d0d0",
-												display: "flex",
-												alignItems: "center",
-												justifyContent: "center",
-												fontSize: "10px",
-												color: "#999",
 											}}
-										>
-											No Image
-										</div>
+										/>
 									)}
 								</div>
 
