@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import type { Bindings } from "./types";
-import { health, webhook, feed, stats, records, admin } from "./routes";
+import { health, webhook, feed, stats, records } from "./routes";
 import { processDocument } from "./utils";
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -15,7 +15,7 @@ app.route("/webhook", webhook);
 app.route("/feed", feed);
 app.route("/stats", stats);
 app.route("/records", records);
-app.route("/admin", admin);
+//app.route("/admin", admin);
 
 // Legacy alias: /feed-raw -> /feed/raw
 app.get("/feed-raw", async (c) => {
@@ -49,11 +49,7 @@ app.notFound((c) => {
 // Export for Cloudflare Workers
 export default {
 	fetch: app.fetch,
-	async scheduled(
-		event: ScheduledEvent,
-		env: Bindings,
-		ctx: ExecutionContext,
-	) {
+	async scheduled(event: ScheduledEvent, env: Bindings, ctx: ExecutionContext) {
 		const batchSize = 50;
 		// Select stale documents
 		const { results } = await env.DB.prepare(
