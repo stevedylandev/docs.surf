@@ -1,4 +1,6 @@
-# Document Feeds
+# Docs.surf
+
+![cover](./packages/client/public/og.png)
 
 A monorepo for indexing and displaying [Standard.site](https://standard.site) documents from the AT Protocol, powered by Cloudflare Workers, D1, and Queues.
 
