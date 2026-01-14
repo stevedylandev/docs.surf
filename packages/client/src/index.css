@@ -1,28 +1,32 @@
 body {
-  background: url("./xp.jpg") no-repeat center center fixed;
-  background-size: cover;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  padding: 20px;
-  overflow: hidden;
-  box-sizing: border-box;
+	background: url("./xp.jpg") no-repeat center center fixed;
+	background-size: cover;
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0;
+	padding: 20px;
+	padding-top: max(20px, env(safe-area-inset-top));
+	padding-bottom: max(20px, env(safe-area-inset-bottom));
+	padding-left: max(20px, env(safe-area-inset-left));
+	padding-right: max(20px, env(safe-area-inset-right));
+	overflow: hidden;
+	box-sizing: border-box;
 }
 
 #root {
-  width: 100%;
-  display: flex;
-  justify-content: center;
+	width: 100%;
+	display: flex;
+	justify-content: center;
 }
 
 /* Hide toolbar text labels and secondary icons on mobile */
 @media (max-width: 600px) {
-  .ie-toolbar span {
-    display: none !important;
-  }
-  .ie-toolbar .ie-secondary {
-    display: none !important;
-  }
+	.ie-toolbar span {
+		display: none !important;
+	}
+	.ie-toolbar .ie-secondary {
+		display: none !important;
+	}
 }
