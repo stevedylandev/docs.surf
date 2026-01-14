@@ -463,6 +463,16 @@ function App() {
 										</a>
 										, a new protocol to power connections across the web.
 									</p>
+									<p>
+										Source code can be found at{" "}
+										<a
+											href="https://github.com/stevedylandev/docs.surf"
+											target="_blank"
+											rel="noreferrer"
+										>
+											github.com/stevedylandev/docs.surf
+										</a>
+									</p>
 								</div>
 							</details>
 						</div>
