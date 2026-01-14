@@ -204,7 +204,7 @@ export async function processDocument(
     const verified = await verifyDocumentRecord(pubUrl, site, viewUrl, uri);
 
     // 7. Insert/update resolved_documents
-    const STALE_OFFSET_HOURS = 12;
+    const STALE_OFFSET_HOURS = 24;
 
     await db
       .prepare(

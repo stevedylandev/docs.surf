@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import type { Bindings, TapEvent } from "../types";
-import { resolvePds, parseAtUri, resolveViewUrl } from "../utils";
+import { resolveViewUrl } from "../utils";
+
+const STALE_OFFSET_HOURS = 24;
 
 const webhook = new Hono<{ Bindings: Bindings }>();
 
@@ -64,9 +66,9 @@ webhook.post("/tap", async (c) => {
             await db
               .prepare(
                 `INSERT INTO resolved_documents (uri, did, rkey, title, path, site, content, text_content, published_at, view_url, resolved_at, stale_at)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now', '+12 hours'))
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now', '+${STALE_OFFSET_HOURS} hours'))
                  ON CONFLICT(uri) DO UPDATE SET
-                   title = ?, path = ?, site = ?, content = ?, text_content = ?, published_at = ?, view_url = ?, resolved_at = datetime('now'), stale_at = datetime('now', '+12 hours')`
+                   title = ?, path = ?, site = ?, content = ?, text_content = ?, published_at = ?, view_url = ?, resolved_at = datetime('now'), stale_at = datetime('now', '+${STALE_OFFSET_HOURS} hours')`
               )
               .bind(
                 uri,
@@ -89,6 +91,13 @@ webhook.post("/tap", async (c) => {
               )
               .run();
           }
+
+          // Queue for immediate full processing (verification, publication resolution, etc.)
+          await c.env.RESOLUTION_QUEUE.send({
+            did: record.did,
+            collection: record.collection,
+            rkey: record.rkey,
+          });
         } else if (record.action === "delete") {
           await db
             .prepare(
@@ -189,9 +198,9 @@ webhook.post("/tap/batch", async (c) => {
             await db
               .prepare(
                 `INSERT INTO resolved_documents (uri, did, rkey, title, path, site, content, text_content, published_at, view_url, resolved_at, stale_at)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now', '+12 hours'))
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now', '+${STALE_OFFSET_HOURS} hours'))
                  ON CONFLICT(uri) DO UPDATE SET
-                   title = ?, path = ?, site = ?, content = ?, text_content = ?, published_at = ?, view_url = ?, resolved_at = datetime('now'), stale_at = datetime('now', '+12 hours')`
+                   title = ?, path = ?, site = ?, content = ?, text_content = ?, published_at = ?, view_url = ?, resolved_at = datetime('now'), stale_at = datetime('now', '+${STALE_OFFSET_HOURS} hours')`
               )
               .bind(
                 uri,
@@ -214,6 +223,14 @@ webhook.post("/tap/batch", async (c) => {
               )
               .run();
           }
+
+          // Queue for immediate full processing
+          await c.env.RESOLUTION_QUEUE.send({
+            did: event.did,
+            collection: event.collection,
+            rkey: event.rkey,
+          });
+
           processed++;
         } else if (
           event.type === "delete" &&

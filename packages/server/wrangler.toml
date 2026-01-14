@@ -21,7 +21,7 @@ max_batch_timeout = 30
 
 # Cron trigger to refresh stale documents
 [triggers]
-crons = ["*/15 * * * *"]  # Every 15 minutes
+crons = ["0 * * * *"]  # Every hour (at minute 0)
 
 # Environment variables (secrets should be set via wrangler secret)
 # TAP_WEBHOOK_SECRET - Optional secret for webhook authentication
