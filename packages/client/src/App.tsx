@@ -105,32 +105,286 @@ function App() {
 	};
 
 	return (
-		<div className="window" style={{ width: "100%", maxWidth: "800px" }}>
+		<div className="window" style={{ width: "100%", maxWidth: "900px" }}>
 			<div className="title-bar">
-				<div className="title-bar-text">Internet Explorer 6</div>
+				<div className="title-bar-text">ATFeeds - Microsoft Internet Explorer</div>
 				<div className="title-bar-controls">
 					<button aria-label="Minimize" />
 					<button aria-label="Maximize" />
 					<button aria-label="Close" />
 				</div>
 			</div>
-			<div className="window-body">
+
+			{/* IE Chrome Container */}
+			<div style={{ margin: "0 2px" }}>
+				{/* Menu Bar */}
 				<div
 					style={{
 						display: "flex",
-						gap: "8px",
-						marginBottom: "16px",
-						alignItems: "center",
+						gap: "0",
+						padding: "1px 2px",
+						backgroundColor: "#ece9d8",
+						borderBottom: "1px solid #aca899",
+						fontSize: "12px",
 					}}
 				>
-					<button onClick={fetchFeed}>Refresh</button>
+					{["File", "Edit", "View", "Favorites", "Tools", "Help"].map((item) => (
+						<button
+							key={item}
+							style={{
+								background: "none",
+								border: "none",
+								padding: "1px 6px",
+								cursor: "pointer",
+								fontFamily: "inherit",
+								fontSize: "inherit",
+							}}
+						>
+							{item}
+						</button>
+					))}
+				</div>
+
+				{/* Toolbar */}
+				<div
+					style={{
+						display: "flex",
+						alignItems: "center",
+						gap: "2px",
+						padding: "2px 4px",
+						backgroundColor: "#ece9d8",
+						borderBottom: "1px solid #aca899",
+					}}
+				>
+					{/* Back button */}
+					<button
+						style={{
+							display: "flex",
+							alignItems: "center",
+							gap: "2px",
+							padding: "1px 4px",
+							background: "none",
+							border: "none",
+							cursor: "pointer",
+						}}
+					>
+						<img
+							src="/windows-icons/Back.png"
+							alt="Back"
+							style={{ width: "20px", height: "20px" }}
+						/>
+						<span style={{ fontSize: "11px" }}>Back</span>
+					</button>
+
+					{/* Forward button */}
+					<button
+						style={{
+							display: "flex",
+							alignItems: "center",
+							padding: "1px 2px",
+							background: "none",
+							border: "none",
+							cursor: "pointer",
+						}}
+					>
+						<img
+							src="/windows-icons/Forward.png"
+							alt="Forward"
+							style={{ width: "20px", height: "20px" }}
+						/>
+					</button>
+
+					<div style={{ width: "1px", height: "20px", backgroundColor: "#aca899", margin: "0 2px" }} />
+
+					{/* Stop */}
+					<button
+						style={{
+							padding: "1px 2px",
+							background: "none",
+							border: "none",
+							cursor: "pointer",
+						}}
+					>
+						<img
+							src="/windows-icons/Stop.png"
+							alt="Stop"
+							style={{ width: "20px", height: "20px" }}
+						/>
+					</button>
+
+					{/* Refresh */}
+					<button
+						onClick={fetchFeed}
+						style={{
+							padding: "1px 2px",
+							background: "none",
+							border: "none",
+							cursor: "pointer",
+						}}
+					>
+						<img
+							src="/windows-icons/IE Refresh.png"
+							alt="Refresh"
+							style={{ width: "20px", height: "20px" }}
+						/>
+					</button>
+
+					{/* Home */}
 					<button
 						onClick={() => window.open("https://standard.site", "_blank")}
+						style={{
+							padding: "1px 2px",
+							background: "none",
+							border: "none",
+							cursor: "pointer",
+						}}
 					>
-						Standard.site
+						<img
+							src="/windows-icons/IE Home.png"
+							alt="Home"
+							style={{ width: "20px", height: "20px" }}
+						/>
 					</button>
-					<div style={{ flex: 1 }} />
-					<span>{documents.length} documents</span>
+
+					<div style={{ width: "1px", height: "20px", backgroundColor: "#aca899", margin: "0 2px" }} />
+
+					{/* Search */}
+					<button
+						style={{
+							display: "flex",
+							alignItems: "center",
+							gap: "2px",
+							padding: "1px 4px",
+							background: "none",
+							border: "none",
+							cursor: "pointer",
+						}}
+					>
+						<img
+							src="/windows-icons/Search.png"
+							alt="Search"
+							style={{ width: "20px", height: "20px" }}
+						/>
+						<span style={{ fontSize: "11px" }}>Search</span>
+					</button>
+
+					{/* Favorites */}
+					<button
+						style={{
+							display: "flex",
+							alignItems: "center",
+							gap: "2px",
+							padding: "1px 4px",
+							background: "none",
+							border: "none",
+							cursor: "pointer",
+						}}
+					>
+						<img
+							src="/windows-icons/Favorites.png"
+							alt="Favorites"
+							style={{ width: "20px", height: "20px" }}
+						/>
+						<span style={{ fontSize: "11px" }}>Favorites</span>
+					</button>
+
+					<div style={{ width: "1px", height: "20px", backgroundColor: "#aca899", margin: "0 2px" }} />
+
+					{/* Mail */}
+					<button
+						style={{
+							padding: "1px 2px",
+							background: "none",
+							border: "none",
+							cursor: "pointer",
+						}}
+					>
+						<img
+							src="/windows-icons/Email.png"
+							alt="Mail"
+							style={{ width: "20px", height: "20px" }}
+						/>
+					</button>
+
+					{/* Print */}
+					<button
+						style={{
+							padding: "1px 2px",
+							background: "none",
+							border: "none",
+							cursor: "pointer",
+						}}
+					>
+						<img
+							src="/windows-icons/Printer.png"
+							alt="Print"
+							style={{ width: "20px", height: "20px" }}
+						/>
+					</button>
+				</div>
+
+				{/* Address Bar */}
+				<div
+					style={{
+						display: "flex",
+						alignItems: "center",
+						gap: "4px",
+						padding: "2px 4px",
+						backgroundColor: "#ece9d8",
+						borderBottom: "1px solid #aca899",
+					}}
+				>
+					<span style={{ fontSize: "11px", fontWeight: "normal" }}>Address</span>
+					<div
+						style={{
+							flex: 1,
+							display: "flex",
+							alignItems: "center",
+							backgroundColor: "white",
+							border: "1px solid #7f9db9",
+							padding: "1px 3px",
+						}}
+					>
+						<img
+							src="/windows-icons/Internet Explorer 6.png"
+							alt=""
+							style={{ width: "14px", height: "14px", marginRight: "3px" }}
+						/>
+						<span style={{ fontSize: "11px", color: "#000" }}>
+							https://atfeeds.stevedsimkins.workers.dev/feed
+						</span>
+					</div>
+					<button
+						style={{
+							display: "flex",
+							alignItems: "center",
+							gap: "2px",
+							padding: "1px 6px",
+							fontSize: "11px",
+						}}
+					>
+						<img
+							src="/windows-icons/Go.png"
+							alt=""
+							style={{ width: "14px", height: "14px" }}
+						/>
+						Go
+					</button>
+					<span style={{ fontSize: "11px" }}>Links</span>
+				</div>
+			</div>
+
+			<div className="window-body" style={{ margin: 0, padding: "4px 6px" }}>
+				<div
+					style={{
+						display: "flex",
+						gap: "4px",
+						marginBottom: "4px",
+						alignItems: "center",
+						fontSize: "11px",
+					}}
+				>
+					<span>{documents.length} documents loaded</span>
 				</div>
 
 				{loading && <p style={{ textAlign: "center" }}>Searching...</p>}
