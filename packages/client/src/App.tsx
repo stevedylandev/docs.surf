@@ -147,6 +147,7 @@ function App() {
 
 				{/* Toolbar */}
 				<div
+					className="ie-toolbar"
 					style={{
 						display: "flex",
 						alignItems: "center",
@@ -154,6 +155,7 @@ function App() {
 						padding: "3px 2px",
 						backgroundColor: "#ece9d8",
 						borderBottom: "1px solid #aca899",
+						overflow: "hidden",
 					}}
 				>
 					{/* Back button */}
@@ -292,6 +294,7 @@ function App() {
 					</div>
 
 					<div
+						className="ie-secondary"
 						style={{
 							width: "1px",
 							height: "22px",
@@ -302,6 +305,7 @@ function App() {
 
 					{/* Mail */}
 					<div
+						className="ie-secondary"
 						style={{
 							display: "flex",
 							alignItems: "center",
@@ -319,6 +323,7 @@ function App() {
 
 					{/* Print */}
 					<div
+						className="ie-secondary"
 						style={{
 							padding: "0 4px",
 							cursor: "pointer",
@@ -396,18 +401,6 @@ function App() {
 			</div>
 
 			<div className="window-body" style={{ margin: 0, padding: "4px 6px" }}>
-				<div
-					style={{
-						display: "flex",
-						gap: "4px",
-						marginBottom: "4px",
-						alignItems: "center",
-						fontSize: "11px",
-					}}
-				>
-					<span>{documents.length} documents loaded</span>
-				</div>
-
 				{loading && <p style={{ textAlign: "center" }}>Searching...</p>}
 
 				{error && (
@@ -431,6 +424,49 @@ function App() {
 							paddingRight: "5px",
 						}}
 					>
+						<div
+							style={{
+								background: "#ffffff",
+								padding: 0,
+								margin: 0,
+							}}
+						>
+							<h3 style={{ padding: "1rem", margin: 0 }}>
+								Welcome to Docs.surf! 🏄
+							</h3>
+							<details
+								style={{
+									fontSize: "14px",
+									padding: "0 1rem 1rem 1rem",
+								}}
+							>
+								<summary style={{ cursor: "pointer" }}>What is this?</summary>
+								<div style={{ paddingTop: "0.5rem", fontSize: "14px" }}>
+									<p>
+										Docs.surf is a{" "}
+										<a
+											href="https://standard.site"
+											target="_blank"
+											rel="noreferrer"
+										>
+											Standard.site
+										</a>{" "}
+										aggregator, pulling all valid Publications and Documents
+										into a single chronological feed. You can think of it like
+										RSS, but there's no manual collection. It's all powered by{" "}
+										<a
+											href="https://atproto.com"
+											target="_blank"
+											rel="noreferrer"
+										>
+											ATProto
+										</a>
+										, a new protocol to power connections across the web.
+									</p>
+								</div>
+							</details>
+						</div>
+
 						{documents.map((doc, index) => (
 							<div
 								key={doc.uri}
@@ -585,7 +621,6 @@ function App() {
 			</div>
 			<div className="status-bar">
 				<p className="status-bar-field">Done</p>
-				<p className="status-bar-field">Internet</p>
 			</div>
 		</div>
 	);

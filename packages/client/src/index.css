@@ -16,3 +16,13 @@ body {
   display: flex;
   justify-content: center;
 }
+
+/* Hide toolbar text labels and secondary icons on mobile */
+@media (max-width: 600px) {
+  .ie-toolbar span {
+    display: none !important;
+  }
+  .ie-toolbar .ie-secondary {
+    display: none !important;
+  }
+}
