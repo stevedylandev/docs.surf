@@ -56,7 +56,7 @@ function App() {
 		setLoading(true);
 		setError(null);
 		try {
-			const response = await fetch(`${API_URL}/feed`);
+			const response = await fetch(`${API_URL}/feed?limit=100`);
 			if (!response.ok) {
 				throw new Error("Failed to fetch feed");
 			}
@@ -107,7 +107,9 @@ function App() {
 	return (
 		<div className="window" style={{ width: "100%", maxWidth: "900px" }}>
 			<div className="title-bar">
-				<div className="title-bar-text">ATFeeds - Microsoft Internet Explorer</div>
+				<div className="title-bar-text">
+					Docs.surf - Microsoft Internet Explorer
+				</div>
 				<div className="title-bar-controls">
 					<button aria-label="Minimize" />
 					<button aria-label="Maximize" />
@@ -121,28 +123,26 @@ function App() {
 				<div
 					style={{
 						display: "flex",
-						gap: "0",
-						padding: "1px 2px",
+						justifyContent: "flex-start",
+						padding: "2px 0",
 						backgroundColor: "#ece9d8",
 						borderBottom: "1px solid #aca899",
-						fontSize: "12px",
+						fontSize: "11px",
 					}}
 				>
-					{["File", "Edit", "View", "Favorites", "Tools", "Help"].map((item) => (
-						<button
-							key={item}
-							style={{
-								background: "none",
-								border: "none",
-								padding: "1px 6px",
-								cursor: "pointer",
-								fontFamily: "inherit",
-								fontSize: "inherit",
-							}}
-						>
-							{item}
-						</button>
-					))}
+					{["File", "Edit", "View", "Favorites", "Tools", "Help"].map(
+						(item) => (
+							<span
+								key={item}
+								style={{
+									padding: "2px 8px",
+									cursor: "pointer",
+								}}
+							>
+								{item}
+							</span>
+						),
+					)}
 				</div>
 
 				{/* Toolbar */}
@@ -150,177 +150,186 @@ function App() {
 					style={{
 						display: "flex",
 						alignItems: "center",
-						gap: "2px",
-						padding: "2px 4px",
+						gap: "0",
+						padding: "3px 2px",
 						backgroundColor: "#ece9d8",
 						borderBottom: "1px solid #aca899",
 					}}
 				>
 					{/* Back button */}
-					<button
+					<div
 						style={{
 							display: "flex",
 							alignItems: "center",
 							gap: "2px",
-							padding: "1px 4px",
-							background: "none",
-							border: "none",
+							padding: "0 6px",
 							cursor: "pointer",
 						}}
 					>
 						<img
 							src="/windows-icons/Back.png"
 							alt="Back"
-							style={{ width: "20px", height: "20px" }}
+							style={{ width: "22px", height: "22px" }}
 						/>
 						<span style={{ fontSize: "11px" }}>Back</span>
-					</button>
+						<span style={{ fontSize: "8px", marginLeft: "2px" }}>▼</span>
+					</div>
 
 					{/* Forward button */}
-					<button
+					<div
 						style={{
 							display: "flex",
 							alignItems: "center",
-							padding: "1px 2px",
-							background: "none",
-							border: "none",
+							padding: "0 4px",
 							cursor: "pointer",
 						}}
 					>
 						<img
 							src="/windows-icons/Forward.png"
 							alt="Forward"
-							style={{ width: "20px", height: "20px" }}
+							style={{ width: "22px", height: "22px" }}
 						/>
-					</button>
+					</div>
 
-					<div style={{ width: "1px", height: "20px", backgroundColor: "#aca899", margin: "0 2px" }} />
+					<div
+						style={{
+							width: "1px",
+							height: "22px",
+							backgroundColor: "#aca899",
+							margin: "0 4px",
+						}}
+					/>
 
 					{/* Stop */}
-					<button
+					<div
 						style={{
-							padding: "1px 2px",
-							background: "none",
-							border: "none",
+							padding: "0 4px",
 							cursor: "pointer",
 						}}
 					>
 						<img
 							src="/windows-icons/Stop.png"
 							alt="Stop"
-							style={{ width: "20px", height: "20px" }}
+							style={{ width: "22px", height: "22px" }}
 						/>
-					</button>
+					</div>
 
 					{/* Refresh */}
-					<button
+					<div
 						onClick={fetchFeed}
 						style={{
-							padding: "1px 2px",
-							background: "none",
-							border: "none",
+							padding: "0 4px",
 							cursor: "pointer",
 						}}
 					>
 						<img
 							src="/windows-icons/IE Refresh.png"
 							alt="Refresh"
-							style={{ width: "20px", height: "20px" }}
+							style={{ width: "22px", height: "22px" }}
 						/>
-					</button>
+					</div>
 
 					{/* Home */}
-					<button
-						onClick={() => window.open("https://standard.site", "_blank")}
+					<a
+						href="https://stevedylan.dev"
+						target="_blank"
+						rel="noreferrer"
 						style={{
-							padding: "1px 2px",
-							background: "none",
-							border: "none",
+							padding: "0 4px",
 							cursor: "pointer",
 						}}
 					>
 						<img
 							src="/windows-icons/IE Home.png"
 							alt="Home"
-							style={{ width: "20px", height: "20px" }}
+							style={{ width: "22px", height: "22px" }}
 						/>
-					</button>
+					</a>
 
-					<div style={{ width: "1px", height: "20px", backgroundColor: "#aca899", margin: "0 2px" }} />
+					<div
+						style={{
+							width: "1px",
+							height: "22px",
+							backgroundColor: "#aca899",
+							margin: "0 4px",
+						}}
+					/>
 
 					{/* Search */}
-					<button
+					<div
 						style={{
 							display: "flex",
 							alignItems: "center",
-							gap: "2px",
-							padding: "1px 4px",
-							background: "none",
-							border: "none",
+							gap: "3px",
+							padding: "0 6px",
 							cursor: "pointer",
 						}}
 					>
 						<img
 							src="/windows-icons/Search.png"
 							alt="Search"
-							style={{ width: "20px", height: "20px" }}
+							style={{ width: "22px", height: "22px" }}
 						/>
 						<span style={{ fontSize: "11px" }}>Search</span>
-					</button>
+					</div>
 
 					{/* Favorites */}
-					<button
+					<div
 						style={{
 							display: "flex",
 							alignItems: "center",
-							gap: "2px",
-							padding: "1px 4px",
-							background: "none",
-							border: "none",
+							gap: "3px",
+							padding: "0 6px",
 							cursor: "pointer",
 						}}
 					>
 						<img
 							src="/windows-icons/Favorites.png"
 							alt="Favorites"
-							style={{ width: "20px", height: "20px" }}
+							style={{ width: "22px", height: "22px" }}
 						/>
 						<span style={{ fontSize: "11px" }}>Favorites</span>
-					</button>
+					</div>
 
-					<div style={{ width: "1px", height: "20px", backgroundColor: "#aca899", margin: "0 2px" }} />
+					<div
+						style={{
+							width: "1px",
+							height: "22px",
+							backgroundColor: "#aca899",
+							margin: "0 4px",
+						}}
+					/>
 
 					{/* Mail */}
-					<button
+					<div
 						style={{
-							padding: "1px 2px",
-							background: "none",
-							border: "none",
+							display: "flex",
+							alignItems: "center",
+							padding: "0 4px",
 							cursor: "pointer",
 						}}
 					>
 						<img
 							src="/windows-icons/Email.png"
 							alt="Mail"
-							style={{ width: "20px", height: "20px" }}
+							style={{ width: "22px", height: "22px" }}
 						/>
-					</button>
+						<span style={{ fontSize: "8px", marginLeft: "1px" }}>▼</span>
+					</div>
 
 					{/* Print */}
-					<button
+					<div
 						style={{
-							padding: "1px 2px",
-							background: "none",
-							border: "none",
+							padding: "0 4px",
 							cursor: "pointer",
 						}}
 					>
 						<img
 							src="/windows-icons/Printer.png"
 							alt="Print"
-							style={{ width: "20px", height: "20px" }}
+							style={{ width: "22px", height: "22px" }}
 						/>
-					</button>
+					</div>
 				</div>
 
 				{/* Address Bar */}
@@ -334,7 +343,7 @@ function App() {
 						borderBottom: "1px solid #aca899",
 					}}
 				>
-					<span style={{ fontSize: "11px", fontWeight: "normal" }}>Address</span>
+					<span style={{ fontSize: "11px" }}>Address</span>
 					<div
 						style={{
 							flex: 1,
@@ -342,35 +351,47 @@ function App() {
 							alignItems: "center",
 							backgroundColor: "white",
 							border: "1px solid #7f9db9",
-							padding: "1px 3px",
+							padding: "2px 4px",
 						}}
 					>
 						<img
 							src="/windows-icons/Internet Explorer 6.png"
 							alt=""
-							style={{ width: "14px", height: "14px", marginRight: "3px" }}
+							style={{ width: "16px", height: "16px", marginRight: "4px" }}
 						/>
-						<span style={{ fontSize: "11px", color: "#000" }}>
-							https://atfeeds.stevedsimkins.workers.dev/feed
+						<span style={{ flex: 1, fontSize: "12px", color: "#000" }}>
+							https://docs.surf
+						</span>
+						<span
+							style={{
+								fontSize: "10px",
+								color: "#666",
+								padding: "0 4px",
+								cursor: "pointer",
+							}}
+						>
+							▼
 						</span>
 					</div>
 					<button
 						style={{
 							display: "flex",
 							alignItems: "center",
-							gap: "2px",
-							padding: "1px 6px",
+							gap: "3px",
+							padding: "2px 12px",
 							fontSize: "11px",
+							minWidth: "50px",
 						}}
 					>
 						<img
 							src="/windows-icons/Go.png"
 							alt=""
-							style={{ width: "14px", height: "14px" }}
+							style={{ width: "16px", height: "16px" }}
 						/>
 						Go
 					</button>
-					<span style={{ fontSize: "11px" }}>Links</span>
+					<span style={{ fontSize: "11px", marginLeft: "4px" }}>Links</span>
+					<span style={{ fontSize: "10px" }}>»</span>
 				</div>
 			</div>
 
