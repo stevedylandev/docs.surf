@@ -4,32 +4,6 @@
 
 A monorepo for indexing and displaying [Standard.site](https://standard.site) documents from the AT Protocol, powered by Cloudflare Workers, D1, and Queues.
 
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     Cloudflare                              │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌──────────────┐     ┌──────────────┐     ┌─────────────┐  │
-│  │    Pages     │────▶│   Worker     │────▶│     D1      │  │
-│  │   (Client)   │     │   (API)      │     │  (Database) │  │
-│  └──────────────┘     └──────────────┘     └─────────────┘  │
-│                              ▲                   ▲          │
-│                              │                   │          │
-│                       ┌──────┴───────┐    ┌──────┴───────┐  │
-│                       │    Queue     │    │     Cron     │  │
-│                       │  (Resolver)  │    │  (Refresh)   │  │
-│                       └──────┬───────┘    └──────────────┘  │
-│                              │                              │
-└──────────────────────────────┼──────────────────────────────┘
-                               │ POST /webhook/tap
-                    ┌──────────┴───────────┐
-                    │   Tap Instance       │
-                    │   (External)         │
-                    └──────────────────────┘
-```
-
 **Components:**
 
 1. **Tap Indexer** (External) - Subscribes to the AT Protocol firehose and sends webhook events
@@ -53,36 +27,6 @@ bun run dev:client
 ```
 
 The client will run on `http://localhost:5173`.
-
-## API Endpoints
-
-### Health & Stats
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Health check |
-| `/stats` | GET | Database statistics |
-
-### Feed Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/feed` | GET | Pre-resolved documents (fast) |
-| `/feed-raw` | GET | Raw record references (for client-side resolution) |
-| `/records/:did` | GET | Records by DID |
-
-### Webhook
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/webhook/tap` | POST | Receives events from tap |
-| `/webhook/tap/debug` | POST | Debug endpoint (echoes payload) |
-
-### Admin
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/admin/resolve-all` | POST | Queue unresolved records for processing |
 
 ## How It Works
 
