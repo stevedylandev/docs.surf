@@ -75,7 +75,19 @@ function App() {
 
 	const formatDate = (dateString?: string) => {
 		if (!dateString) return "Unknown date";
-		return new Date(dateString).toLocaleDateString("en-US", {
+		const date = new Date(dateString);
+		const now = new Date();
+		const diff = now.getTime() - date.getTime();
+		const minutes = Math.floor(diff / 60000);
+		const hours = Math.floor(diff / 3600000);
+		const days = Math.floor(diff / 86400000);
+
+		if (minutes < 1) return "just now";
+		if (minutes < 60) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+		if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+		if (days < 7) return `${days} day${days > 1 ? "s" : ""} ago`;
+
+		return date.toLocaleDateString("en-US", {
 			year: "numeric",
 			month: "long",
 			day: "numeric",
@@ -92,11 +104,10 @@ function App() {
 		return doc.description || doc.textContent || "";
 	};
 
-
 	return (
 		<div className="window" style={{ width: "100%", maxWidth: "800px" }}>
 			<div className="title-bar">
-				<div className="title-bar-text">docs.surf - Internet Explorer 6</div>
+				<div className="title-bar-text">Internet Explorer 6</div>
 				<div className="title-bar-controls">
 					<button aria-label="Minimize" />
 					<button aria-label="Maximize" />
@@ -137,141 +148,161 @@ function App() {
 				)}
 
 				{!loading && !error && (
-					<div className="feed" style={{ maxHeight: "70vh", overflowY: "auto", paddingRight: "5px" }}>
-						{documents.map((doc) => (
-							<fieldset key={doc.uri} style={{ marginBottom: "16px" }}>
-								<legend style={{ fontWeight: "bold" }}>
-									{doc.viewUrl ? (
-										<a
-											href={doc.viewUrl}
-											target="_blank"
-											rel="noopener noreferrer"
-											style={{ color: "inherit", textDecoration: "none" }}
-										>
-											{doc.title}
-										</a>
+					<div
+						className="feed"
+						style={{
+							maxHeight: "70vh",
+							overflowY: "auto",
+							paddingRight: "5px",
+						}}
+					>
+						{documents.map((doc, index) => (
+							<div
+								key={doc.uri}
+								style={{
+									display: "flex",
+									gap: "12px",
+									padding: "16px",
+									borderBottom:
+										index < documents.length - 1 ? "1px solid #e0e0e0" : "none",
+									backgroundColor: "#ffffff",
+									position: "relative",
+								}}
+							>
+								{/* Thumbnail on the left */}
+								<div style={{ flexShrink: 0 }}>
+									{doc.coverImageUrl || doc.publication?.iconUrl ? (
+										<img
+											src={doc.coverImageUrl || doc.publication?.iconUrl}
+											alt={doc.title}
+											style={{
+												width: "88px",
+												height: "88px",
+												objectFit: "scale-down",
+												border: "1px solid #d0d0d0",
+											}}
+										/>
 									) : (
-										doc.title
-									)}
-								</legend>
-								<div style={{ padding: "8px" }}>
-									{/* Publication info */}
-									{doc.publication && (
 										<div
 											style={{
+												width: "88px",
+												height: "88px",
+												backgroundColor: "#f0f0f0",
+												border: "1px solid #d0d0d0",
 												display: "flex",
 												alignItems: "center",
-												gap: "8px",
-												marginBottom: "8px",
-												fontSize: "0.85em",
+												justifyContent: "center",
+												fontSize: "10px",
+												color: "#999",
 											}}
 										>
-											{doc.publication.iconUrl && (
-												<img
-													src={doc.publication.iconUrl}
-													alt={doc.publication.name}
-													style={{
-														width: "16px",
-														height: "16px",
-														objectFit: "cover",
-													}}
-												/>
-											)}
-											<span style={{ fontWeight: "bold" }}>
-												{doc.publication.name}
-											</span>
+											No Image
 										</div>
 									)}
+								</div>
 
-									{/* Cover image */}
-									{doc.coverImageUrl && (
-										<div style={{ marginBottom: "8px" }}>
-											<img
-												src={doc.coverImageUrl}
-												alt={doc.title}
-												style={{
-													maxWidth: "100%",
-													maxHeight: "200px",
-													objectFit: "cover",
-													border: "1px solid #888",
-												}}
-											/>
-										</div>
-									)}
-
-									{/* Date */}
-									<div
+								{/* Content on the right */}
+								<div style={{ flex: 1, minWidth: 0 }}>
+									{/* Title */}
+									<h3
 										style={{
-											marginBottom: "8px",
-											fontSize: "0.85em",
-											color: "#666",
+											margin: "0 0 8px 0",
+											fontSize: "15px",
+											fontWeight: "normal",
+											color: "#333",
+											lineHeight: "1.3",
 										}}
 									>
-										Published: {formatDate(doc.publishedAt)}
-										{doc.updatedAt && doc.updatedAt !== doc.publishedAt && (
-											<> | Updated: {formatDate(doc.updatedAt)}</>
+										{doc.viewUrl ? (
+											<a
+												href={doc.viewUrl}
+												target="_blank"
+												rel="noopener noreferrer"
+												style={{
+													color: "#333",
+													textDecoration: "none",
+												}}
+											>
+												{doc.title}
+											</a>
+										) : (
+											doc.title
 										)}
-									</div>
+									</h3>
 
 									{/* Description */}
 									{getDescription(doc) && (
-										<p style={{ marginBottom: "12px" }}>
-											{truncateText(getDescription(doc))}
+										<p
+											style={{
+												margin: "0 0 8px 0",
+												fontSize: "12px",
+												color: "#666",
+												lineHeight: "1.4",
+											}}
+										>
+											{truncateText(getDescription(doc), 150)}
 										</p>
 									)}
 
-									{/* Tags */}
-									{doc.tags && doc.tags.length > 0 && (
-										<div
+									{/* Publication name and timestamp */}
+									<div
+										style={{
+											display: "flex",
+											alignItems: "center",
+											justifyContent: "space-between",
+											fontSize: "12px",
+										}}
+									>
+										<a
+											href={doc.publication?.url}
+											target="_blank"
+											rel="noreferrer"
 											style={{
-												display: "flex",
-												flexWrap: "wrap",
-												gap: "4px",
-												marginBottom: "12px",
+												color: "#7aaa3c",
+												fontWeight: "bold",
 											}}
 										>
-											{doc.tags.map((tag) => (
-												<span
-													key={tag}
-													style={{
-														background: "#c0c0c0",
-														padding: "2px 6px",
-														fontSize: "0.75em",
-														border: "1px solid #808080",
-													}}
-												>
-													{tag}
-												</span>
-											))}
-										</div>
-									)}
-
-									{/* Actions */}
-									<div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
-										{doc.bskyPostRef && (
-											<button
-												onClick={() =>
-													window.open(
-														`https://bsky.app/profile/${doc.did}/post/${doc.bskyPostRef!.uri.split("/").pop()}`,
-														"_blank"
-													)
-												}
-											>
-												View on Bluesky
-											</button>
-										)}
-										{doc.viewUrl && (
-											<button
-												onClick={() =>
-													window.open(doc.viewUrl || "", "_blank")
-												}
-											>
-												Read More
-											</button>
-										)}
+											{doc.publication?.name || "Unknown"}
+										</a>
+										<a
+											href={`https://pdsls.dev/${doc.uri}`}
+											target="_blank"
+											rel="noreferrer"
+											style={{
+												color: "#999",
+											}}
+										>
+											{formatDate(doc.publishedAt)}
+										</a>
 									</div>
 								</div>
-							</fieldset>
+
+								{/* RSS icon on the far right */}
+								{/*<div style={{ flexShrink: 0 }}>
+									<svg
+										width="24"
+										height="24"
+										viewBox="0 0 24 24"
+										fill="none"
+										xmlns="http://www.w3.org/2000/svg"
+										style={{ opacity: 0.6 }}
+									>
+										<circle cx="6" cy="18" r="2" fill="#ff6600" />
+										<path
+											d="M4 4c9.941 0 18 8.059 18 18"
+											stroke="#ff6600"
+											strokeWidth="2"
+											fill="none"
+										/>
+										<path
+											d="M4 11c6.075 0 11 4.925 11 11"
+											stroke="#ff6600"
+											strokeWidth="2"
+											fill="none"
+										/>
+									</svg>
+								</div>*/}
+							</div>
 						))}
 						{documents.length === 0 && <p>No documents found.</p>}
 					</div>
