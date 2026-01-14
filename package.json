@@ -10,6 +10,6 @@
 		"dev:server": "cd packages/server && bun run dev",
 		"dev:client": "cd packages/client && bun run dev",
 		"deploy:client": "cd packages/client && bun run deploy",
-		"deploy:server": "cd packages/client && bun run deploy"
+		"deploy:server": "cd packages/server && bun run deploy"
 	}
 }
