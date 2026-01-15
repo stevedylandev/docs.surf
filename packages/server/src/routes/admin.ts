@@ -51,27 +51,4 @@ admin.post("/resolve-all", async (c) => {
 	}
 });
 
-// Mark all documents as stale (alternative - lets cron handle it)
-admin.post("/mark-stale", async (c) => {
-	try {
-		const db = c.env.DB;
-
-		const result = await db
-			.prepare(
-				`UPDATE resolved_documents SET stale_at = datetime('now', '-1 hour')`,
-			)
-			.run();
-
-		return c.json({
-			message: "All documents marked as stale",
-			affected: result.meta.changes,
-		});
-	} catch (error) {
-		return c.json(
-			{ error: "Failed to mark documents as stale", details: String(error) },
-			500,
-		);
-	}
-});
-
 export default admin;

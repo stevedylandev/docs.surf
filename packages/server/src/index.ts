@@ -17,30 +17,6 @@ app.route("/stats", stats);
 app.route("/records", records);
 app.route("/admin", admin);
 
-// Legacy alias: /feed-raw -> /feed/raw
-app.get("/feed-raw", async (c) => {
-	const db = c.env.DB;
-	const limit = Math.min(Number(c.req.query("limit")) || 15, 15);
-	const offset = Number(c.req.query("offset")) || 0;
-
-	const { results } = await db
-		.prepare(
-			`SELECT did, rkey FROM repo_records
-       WHERE collection = 'site.standard.document'
-       ORDER BY rkey DESC
-       LIMIT ? OFFSET ?`,
-		)
-		.bind(limit, offset)
-		.all<{ did: string; rkey: string }>();
-
-	return c.json({
-		count: results?.length || 0,
-		limit,
-		offset,
-		records: results || [],
-	});
-});
-
 // 404 handler
 app.notFound((c) => {
 	return c.json({ error: "Not found" }, 404);
