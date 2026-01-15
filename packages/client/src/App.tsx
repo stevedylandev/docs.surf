@@ -466,7 +466,7 @@ function App() {
 									<p>
 										Source code can be found at{" "}
 										<a
-											href="https://github.com/stevedylandev/docs.surf"
+											href="https://tangled.org/stevedylan.dev/docs.surf/"
 											target="_blank"
 											rel="noreferrer"
 										>
