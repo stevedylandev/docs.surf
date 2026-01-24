@@ -9,13 +9,27 @@ admin.post("/resolve-all", async (c) => {
 		const db = c.env.DB;
 		const queue = c.env.RESOLUTION_QUEUE;
 
-		// Get all records from repo_records
-		const { results } = await db
-			.prepare(
-				`SELECT did, rkey FROM repo_records
-         WHERE collection = 'site.standard.document'`,
-			)
-			.all<{ did: string; rkey: string }>();
+		// Get limit from query params (default to 100 for safety)
+		const limitParam = c.req.query("limit");
+		const limit = limitParam ? parseInt(limitParam, 10) : 100;
+
+		// Get records from repo_records
+		const query =
+			limit > 0
+				? `SELECT did, rkey FROM repo_records
+         WHERE collection = 'site.standard.document'
+         ORDER BY synced_at DESC
+         LIMIT ?`
+				: `SELECT did, rkey FROM repo_records
+         WHERE collection = 'site.standard.document'`;
+
+		const { results } =
+			limit > 0
+				? await db
+						.prepare(query)
+						.bind(limit)
+						.all<{ did: string; rkey: string }>()
+				: await db.prepare(query).all<{ did: string; rkey: string }>();
 
 		if (!results || results.length === 0) {
 			return c.json({ message: "No documents to process", queued: 0 });
