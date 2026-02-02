@@ -16,7 +16,7 @@ app.route("/feed", feed);
 app.route("/stats", stats);
 app.route("/records", records);
 app.route("/admin", admin);
-app.route("/rss", rss);
+app.route("/rss.xml", rss);
 
 // 404 handler
 app.notFound((c) => {

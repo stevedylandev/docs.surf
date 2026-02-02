@@ -431,9 +431,38 @@ function App() {
 								margin: 0,
 							}}
 						>
-							<h3 style={{ padding: "1rem", margin: 0 }}>
-								Welcome to Docs.surf! 🏄
-							</h3>
+							<div
+								style={{
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "space-between",
+									padding: "1rem",
+								}}
+							>
+								<h3 style={{ margin: 0 }}>Welcome to Docs.surf! 🏄</h3>
+								<a
+									href="https://api.docs.surf/rss.xml"
+									target="_blank"
+									rel="noopener noreferrer"
+									style={{
+										flexShrink: 0,
+										borderRadius: "8px",
+										padding: "4px",
+										display: "inline-block",
+									}}
+								>
+									<img
+										src="/rss.svg"
+										alt="RSS"
+										width="24"
+										height="24"
+										style={{
+											opacity: 0.8,
+											borderRadius: "4px",
+										}}
+									/>
+								</a>
+							</div>
 							<details
 								style={{
 									fontSize: "14px",
@@ -470,7 +499,7 @@ function App() {
 											target="_blank"
 											rel="noreferrer"
 										>
-											github.com/stevedylandev/docs.surf
+											tangled.org/stevedylandev/docs.surf
 										</a>
 									</p>
 								</div>
