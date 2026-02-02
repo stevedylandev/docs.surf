@@ -3,10 +3,11 @@
 	"version": "1.0.0",
 	"private": true,
 	"scripts": {
-		"dev": "wrangler dev",
+		"dev": "wrangler dev --remote",
 		"deploy": "wrangler deploy --minify"
 	},
 	"dependencies": {
+		"feed": "^4.2.2",
 		"hono": "^4.0.0"
 	},
 	"devDependencies": {

@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import type { Bindings } from "./types";
-import { health, webhook, feed, stats, records, admin } from "./routes";
+import { health, webhook, feed, stats, records, admin, rss } from "./routes";
 import { processDocument } from "./utils";
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -16,6 +16,7 @@ app.route("/feed", feed);
 app.route("/stats", stats);
 app.route("/records", records);
 app.route("/admin", admin);
+app.route("/rss", rss);
 
 // 404 handler
 app.notFound((c) => {
