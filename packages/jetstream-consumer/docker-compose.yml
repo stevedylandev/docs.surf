@@ -1,0 +1,14 @@
+services:
+  jetstream-consumer:
+    build: .
+    environment:
+      - WEBHOOK_URL=https://example.com/webhook/tap/batch
+      - WEBHOOK_SECRET=
+      - JETSTREAM_INSTANCES=jetstream1.us-east.bsky.network,jetstream2.us-east.bsky.network,jetstream1.us-west.bsky.network,jetstream2.us-west.bsky.network
+      - WANTED_COLLECTIONS=site.standard.document
+      - CURSOR_FILE=/app/data/cursor.txt
+      - BATCH_INTERVAL_MS=5000
+      - INACTIVITY_TIMEOUT_MS=300000
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
