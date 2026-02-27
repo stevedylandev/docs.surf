@@ -28,6 +28,10 @@ webhook.post("/tap", async (c) => {
     if (event.type === "record") {
       const { record } = event;
 
+      if (record.live === false) {
+        return c.json({ ok: true });
+      }
+
       if (record.collection === "site.standard.document") {
         if (record.action === "create" || record.action === "update") {
           await db
@@ -145,6 +149,7 @@ webhook.post("/tap/batch", async (c) => {
     const events = (await c.req.json()) as Array<{
       type: string;
       did: string;
+      live?: boolean;
       collection?: string;
       rkey?: string;
       cid?: string;
@@ -156,6 +161,10 @@ webhook.post("/tap/batch", async (c) => {
 
     for (const event of events) {
       try {
+        if (event.live === false) {
+          continue;
+        }
+
         if (
           (event.type === "commit" ||
             event.type === "create" ||
