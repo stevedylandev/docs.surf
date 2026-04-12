@@ -5,3 +5,4 @@ export { default as stats } from "./stats";
 export { default as records } from "./records";
 export { default as admin } from "./admin";
 export { default as rss } from "./rss";
+export { default as jetstream } from "./jetstream";

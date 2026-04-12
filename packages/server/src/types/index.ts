@@ -2,7 +2,48 @@ export type Bindings = {
   DB: D1Database;
   RESOLUTION_QUEUE: Queue;
   TAP_WEBHOOK_SECRET?: string;
+  JETSTREAM_CONSUMER: DurableObjectNamespace;
 };
+
+// Jetstream WebSocket event types
+export interface JetstreamCommitEvent {
+  did: string;
+  time_us: number;
+  kind: "commit";
+  commit: {
+    rev: string;
+    operation: "create" | "update" | "delete";
+    collection: string;
+    rkey: string;
+    record?: Record<string, unknown>;
+    cid?: string;
+  };
+}
+
+export interface JetstreamIdentityEvent {
+  did: string;
+  time_us: number;
+  kind: "identity";
+  identity: { did: string; seq: number; time: string };
+}
+
+export interface JetstreamAccountEvent {
+  did: string;
+  time_us: number;
+  kind: "account";
+  account: {
+    active: boolean;
+    did: string;
+    seq: number;
+    time: string;
+    status?: string;
+  };
+}
+
+export type JetstreamEvent =
+  | JetstreamCommitEvent
+  | JetstreamIdentityEvent
+  | JetstreamAccountEvent;
 
 export interface TapRecordEvent {
   id: number;

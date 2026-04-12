@@ -19,6 +19,16 @@ max_batch_size = 10
 max_batch_timeout = 30
 
 
+# Durable Object for Jetstream WebSocket consumer
+[durable_objects]
+bindings = [
+  { name = "JETSTREAM_CONSUMER", class_name = "JetstreamConsumer" }
+]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["JetstreamConsumer"]
+
 # Cron trigger to refresh stale documents
 [triggers]
 crons = ["0 * * * *"]  # Every hour (at minute 0)
