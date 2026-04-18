@@ -45,16 +45,6 @@ function rowToDocument(row: ResolvedDocumentRow): Document {
 		}
 	}
 
-	// Parse content if present
-	let content: unknown | undefined;
-	if (row.content) {
-		try {
-			content = JSON.parse(row.content);
-		} catch {
-			// Ignore parse errors
-		}
-	}
-
 	return {
 		uri: row.uri,
 		did: row.did,
@@ -63,7 +53,6 @@ function rowToDocument(row: ResolvedDocumentRow): Document {
 		description: row.description || undefined,
 		path: row.path || undefined,
 		site: row.site || undefined,
-		content,
 		textContent: row.text_content || undefined,
 		coverImageCid: row.cover_image_cid || undefined,
 		coverImageUrl: row.cover_image_url || undefined,
@@ -86,7 +75,7 @@ feed.get("/", async (c) => {
 
 		const { results } = await db
 			.prepare(
-				`SELECT uri, did, rkey, title, description, path, site, content, text_content,
+				`SELECT uri, did, rkey, title, description, path, site, text_content,
                 cover_image_cid, cover_image_url, bsky_post_ref, tags,
                 published_at, updated_at, pub_url, pub_name, pub_description,
                 pub_icon_cid, pub_icon_url, view_url, pds_endpoint,

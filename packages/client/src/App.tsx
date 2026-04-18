@@ -401,29 +401,34 @@ function App() {
 			</div>
 
 			<div className="window-body" style={{ margin: 0, padding: "4px 6px" }}>
-				{loading && <p style={{ textAlign: "center" }}>Searching...</p>}
+				<div
+					className="feed"
+					style={{
+						height: "70vh",
+						overflowY: "auto",
+						paddingRight: "5px",
+					}}
+				>
+					{loading && (
+						<p style={{ textAlign: "center", padding: "1rem" }}>
+							Searching...
+						</p>
+					)}
 
-				{error && (
-					<div
-						style={{
-							padding: "10px",
-							background: "#ffefef",
-							border: "1px solid #ff0000",
-						}}
-					>
-						<p>Error: {error}</p>
-					</div>
-				)}
+					{error && (
+						<div
+							style={{
+								padding: "10px",
+								background: "#ffefef",
+								border: "1px solid #ff0000",
+							}}
+						>
+							<p>Error: {error}</p>
+						</div>
+					)}
 
-				{!loading && !error && (
-					<div
-						className="feed"
-						style={{
-							maxHeight: "70vh",
-							overflowY: "auto",
-							paddingRight: "5px",
-						}}
-					>
+					{!loading && !error && (
+						<>
 						<div
 							style={{
 								background: "#ffffff",
@@ -488,7 +493,7 @@ function App() {
 											target="_blank"
 											rel="noreferrer"
 										>
-											ATProto
+											atproto
 										</a>
 										, a new protocol to power connections across the web.
 									</p>
@@ -528,7 +533,7 @@ function App() {
 											style={{
 												width: "88px",
 												height: "88px",
-												objectFit: "scale-down",
+												objectFit: "cover",
 												border: "1px solid #d0d0d0",
 											}}
 										/>
@@ -583,6 +588,8 @@ function App() {
 												fontSize: "12px",
 												color: "#666",
 												lineHeight: "1.4",
+												overflowWrap: "anywhere",
+												wordBreak: "break-word",
 											}}
 										>
 											{truncateText(getDescription(doc), 150)}
@@ -650,8 +657,9 @@ function App() {
 							</div>
 						))}
 						{documents.length === 0 && <p>No documents found.</p>}
-					</div>
-				)}
+						</>
+					)}
+				</div>
 			</div>
 			<div className="status-bar">
 				<p className="status-bar-field">Done</p>
